@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysOrderMapper">
+    
+    <resultMap type="SysOrder" id="SysOrderResult">
+        <result property="orderId"    column="order_id"    />
+        <result property="userId"     column="user_id"     />
+        <result property="status"     column="status"      />
+        <result property="orderNo"    column="order_no"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectSysOrderVo">
+        select order_id, create_time, user_id, status, order_no from sys_order u
+            where
+            <if test="params.beginTime != null and params.beginTime != ''">
+                date_format(u.create_time,'%y%m%d') &gt; date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+               and date_format(u.create_time,'%y%m%d') &lt; date_format(#{params.endTime},'%y%m%d')
+            </if>
+    </sql>
+
+    <sql id="selectSysOrdertimeVo">
+        select order_id, create_time, user_id, status, order_no from sys_order u
+        where 1=1
+        <if test="params.beginTime != null">
+            and u.create_time &gt;= #{params.beginTime}
+        </if>
+        <if test="params.endTime != null">
+            and u.create_time &lt;= #{params.endTime}
+        </if>
+    </sql>
+
+    <select id="selectSysOrderList" parameterType="SysOrder" resultMap="SysOrderResult">
+        <include refid="selectSysOrdertimeVo"/>
+    </select>
+
+    <sql id="selectSysOrderIdVo">
+        select order_id, user_id, status, order_no from sys_order
+    </sql>
+
+
+    
+    <select id="selectSysOrderById" parameterType="Long" resultMap="SysOrderResult">
+        <include refid="selectSysOrderIdVo"/>
+        where order_id = #{orderId}
+    </select>
+        
+    <insert id="insertSysOrder" parameterType="SysOrder">
+        insert into sys_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="status != null">status,</if>
+            <if test="orderNo != null">order_no,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="orderNo != null">#{orderNo},</if>
+         </trim>
+    </insert>
+
+</mapper>
